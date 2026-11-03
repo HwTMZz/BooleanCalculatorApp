@@ -1,0 +1,32 @@
+# Feature Checklist
+
+- [x] Core Engine
+  - [x] Tokenizer (with implicit AND and compact variable splitting)
+  - [x] AST Parser (Operator precedence & parentheses)
+  - [x] Boolean Evaluator with detailed operation traces
+  - [x] Truth Table Generator & AST Analysis
+  - [x] Quine-McCluskey Simplification Engine
+  - [x] Boolean Identity Laws Step Engine
+  - [x] Karnaugh Map (K-Map) Generator (2-4 variables, Gray code ordering)
+  - [x] K-Map Grouping Engine (SOP & POS optimal coverage)
+- [x] UI & Visual Fidelity
+  - [x] Custom Color Palette (#F2F2F7, #0088FF, #ECECF0, #D93025, #188038, #EAF3FF, etc.)
+  - [x] Expression Area with custom blinking blue caret & clear button
+  - [x] Answer Display with vertical blue bar indicator
+  - [x] Main Action Button ("Show Full Table ↩")
+  - [x] Variable Assignment Row (WXYZ, ABCD, PQRS, X1234) with updated initialization logic
+  - [x] ControlRow (VarSet Selector, Notation Toggle, Advance Toggle, Delete)
+  - [x] Custom 4-Column Keyboard (Standard & Advanced modes)
+- [x] Screens & Overlays
+  - [x] Main Calculator Screen (Real-time dynamic calculations on every input)
+  - [x] Result Overlay (Semi-transparent backdrop blur, Cards for Table, Simplification, K-Map, Calculation)
+  - [x] Full TruthTable Screen (Column sub-expression filter chips, sticky table)
+  - [x] How'd it come? Screen (Manual step-by-step truth table solving animation with dynamic evaluation order explanation)
+  - [x] Trace Solving Steps Screen (Manual step-by-step expression calculation)
+  - [x] Identity Simplification Steps Screen (Step-by-step identity transformations with comprehensive Boolean laws support and exact 3-column layout matching reference design)
+  - [x] K-Map Solving Steps Screen (8-step manual animation for SOP/POS grouping)
+- [x] Quality & Offline
+  - [x] 100% Offline operation (no network/WebView)
+  - [x] Zero mockup data (100% dynamic calculations from current input AST)
+  - [x] Unit tests for engine accuracy (All 7 unit tests passed)
+  - [x] Build & APK generation (`app:assembleDebug` completed successfully)
