@@ -18,7 +18,7 @@ fun TopStatusSpacer(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .height(12.dp)
+            .height(10.dp)
             .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
             .background(StatusArea)
     )

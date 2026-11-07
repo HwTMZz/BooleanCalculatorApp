@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booleancalculator.domain.model.KMapGroup
 import com.example.booleancalculator.domain.model.KMapModel
 import com.example.booleancalculator.ui.theme.CardBackground
 import com.example.booleancalculator.ui.theme.PrimaryText
@@ -35,9 +36,24 @@ private fun calculateMinterm(rIdx: Int, cIdx: Int, rowCodes: List<String>, colCo
     } else 0
 }
 
+private fun parseGroupColor(hex: String): Color {
+    return when (hex.uppercase()) {
+        "#0088FF" -> Color(0xFF0088FF)
+        "#D93025" -> Color(0xFFD93025)
+        "#188038" -> Color(0xFF188038)
+        "#E37400" -> Color(0xFFE37400)
+        "#A142F4" -> Color(0xFFA142F4)
+        "#00A0B0" -> Color(0xFF00A0B0)
+        else -> Color(0xFF0088FF)
+    }
+}
+
 @Composable
 fun KMapView(
     kmap: KMapModel,
+    step: Int = 7,
+    targetVal: Int = 1,
+    groups: List<KMapGroup> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     val rowCodes = kmap.rowCodes
@@ -66,26 +82,28 @@ fun KMapView(
                         )
                     }
             ) {
-                // Column label at top right
-                Text(
-                    text = colLabel,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryText,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                )
-                // Row label at bottom left
-                Text(
-                    text = rowLabel,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryText,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(4.dp)
-                )
+                if (step >= 1) {
+                    // Column label at top right
+                    Text(
+                        text = colLabel,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryText,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                    )
+                    // Row label at bottom left
+                    Text(
+                        text = rowLabel,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryText,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(4.dp)
+                    )
+                }
             }
 
             colCodes.forEach { cCode ->
@@ -96,12 +114,14 @@ fun KMapView(
                         .background(TableHighlight),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = cCode,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryText
-                    )
+                    if (step >= 2) {
+                        Text(
+                            text = cCode,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryText
+                        )
+                    }
                 }
             }
         }
@@ -117,12 +137,14 @@ fun KMapView(
                         .background(TableHighlight),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = rCode,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryText
-                    )
+                    if (step >= 2) {
+                        Text(
+                            text = rCode,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryText
+                        )
+                    }
                 }
 
                 // Cell values
@@ -130,29 +152,48 @@ fun KMapView(
                     val cellVal = kmap.grid[rIdx][cIdx]
                     val mintermIdx = calculateMinterm(rIdx, cIdx, rowCodes, colCodes)
 
+                    val isCellFilled = step >= 3
+                    val isTargetCell = cellVal == targetVal
+                    val isHighlightedTarget = isCellFilled && isTargetCell && step >= 4
+
+                    val groupForCell = if (step >= 6) groups.firstOrNull { g -> g.cells.contains(Pair(rIdx, cIdx)) } else null
+                    val groupColor = groupForCell?.let { parseGroupColor(it.colorHex) }
+
+                    val bg = when {
+                        groupColor != null -> groupColor.copy(alpha = 0.20f)
+                        isHighlightedTarget -> TableHighlight
+                        else -> CardBackground
+                    }
+
+                    val borderColor = groupColor ?: Color.Black
+                    val borderWidth = if (groupColor != null) 2.5.dp else 0.5.dp
+
                     Box(
                         modifier = Modifier
                             .size(width = 48.dp, height = 48.dp)
-                            .border(0.5.dp, Color.Black),
+                            .background(bg)
+                            .border(borderWidth, borderColor),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Minterm index in small green text at top right
-                        Text(
-                            text = mintermIdx.toString(),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = SuccessGreen,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(2.dp)
-                        )
-                        // Cell value (0 or 1)
-                        Text(
-                            text = cellVal.toString(),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryText
-                        )
+                        if (isCellFilled) {
+                            // Minterm index in small green text at top right
+                            Text(
+                                text = mintermIdx.toString(),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SuccessGreen,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(2.dp)
+                            )
+                            // Cell value (0 or 1)
+                            Text(
+                                text = cellVal.toString(),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = groupColor ?: PrimaryText
+                            )
+                        }
                     }
                 }
             }

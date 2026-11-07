@@ -18,13 +18,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,8 +45,10 @@ import com.example.booleancalculator.ui.theme.PrimaryText
 import com.example.booleancalculator.ui.theme.SecondaryText
 import com.example.booleancalculator.ui.theme.TableHighlight
 import com.example.booleancalculator.viewmodel.UiState
+import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.sp as spUnit
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultOverlay(
     state: UiState,
@@ -54,38 +63,73 @@ fun ResultOverlay(
     val model = state.truthTableModel ?: return
     val ast = state.ast ?: return
     val vars = model.vars
-    val bindings = vars.associateWith { v ->
-        val a = state.assignments[v]
-        if (a == "0" || a == "1") a.toInt() else 0
-    }
-    val hasAssigned = vars.any { v -> state.assignments[v] == "0" || state.assignments[v] == "1" }
-    val detailedCalc = BooleanEvaluator.evalBooleanDetailed(ast, bindings)
-    val assignStr = vars.map { "$it:${bindings[it]}" }.joinToString(", ")
-    val canonicalExpr = BooleanEvaluator.formatAstDisplay(ast, state.notation)
-    val simplifiedExpr = state.simplifyResult?.expr ?: ""
 
-    Box(
+    // High Performance: Cache evaluation calculations with remember
+    val hasAssigned = remember(vars, state.assignments) {
+        vars.any { v -> state.assignments[v] == "0" || state.assignments[v] == "1" }
+    }
+
+    val (assignStr, calcValue) = remember(ast, vars, state.assignments) {
+        val bindings = vars.associateWith { v ->
+            val a = state.assignments[v]
+            if (a == "0" || a == "1") a.toInt() else 0
+        }
+        val detailed = BooleanEvaluator.evalBooleanDetailed(ast, bindings)
+        val aStr = vars.map { "$it:${bindings[it]}" }.joinToString(", ")
+        Pair(aStr, detailed.value)
+    }
+
+    val canonicalExpr = remember(ast, state.notation) {
+        BooleanEvaluator.formatAstDisplay(ast, state.notation)
+    }
+
+    val simplifiedExpr = remember(state.simplifyResult) {
+        state.simplifyResult?.expr ?: ""
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    fun dismissSheet() {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onClose()
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { onClose() },
+        sheetState = sheetState,
+        scrimColor = OverlayBackdrop,
+        containerColor = Color.Transparent,
+        contentColor = PrimaryText,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                color = CardBackground.copy(alpha = 0.8f),
+                width = 38.dp,
+                height = 5.dp
+            )
+        },
         modifier = modifier
-            .fillMaxSize()
-            .background(OverlayBackdrop)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            // Header
+            // Header Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Result",
                     color = CardBackground,
-                    fontSize = 40.spUnit,
+                    fontSize = 30.spUnit,
                     fontWeight = FontWeight.ExtraBold
                 )
 
@@ -94,7 +138,7 @@ fun ResultOverlay(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(CardBackground)
-                        .clickable { onClose() },
+                        .clickable { dismissSheet() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -130,7 +174,7 @@ fun ResultOverlay(
                             modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
                         )
                         Text(
-                            text = "$canonicalExpr = ${detailedCalc.value}",
+                            text = "$canonicalExpr = $calcValue",
                             fontSize = 18.spUnit,
                             fontWeight = FontWeight.Bold,
                             color = PrimaryText,
@@ -154,7 +198,7 @@ fun ResultOverlay(
                     )
 
                     // Preview Table (first 8 rows)
-                    val previewRows = model.rows.take(8)
+                    val previewRows = remember(model) { model.rows.take(8) }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -272,10 +316,10 @@ fun ResultOverlay(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-//                        CardPrimaryButton(
-//                            text = "Show Solving Steps",
-//                            onClick = onOpenKMapSolve
-//                        )
+                        CardPrimaryButton(
+                            text = "Show Solving Steps",
+                            onClick = onOpenKMapSolve
+                        )
                     }
                 }
             }

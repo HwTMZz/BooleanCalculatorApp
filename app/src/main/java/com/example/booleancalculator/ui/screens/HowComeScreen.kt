@@ -134,15 +134,15 @@ fun HowComeScreen(
                         .padding(16.dp)
                 ) {
                     Column {
-                        Text(
-                            text = "Before we begin",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryText
-                        )
+//                        Text(
+//                            text = "Before we begin",
+//                            fontSize = 18.sp,
+//                            fontWeight = FontWeight.Bold,
+//                            color = PrimaryText
+//                        )
                         Text(
                             text = BooleanEvaluator.formatAstDisplay(model.ast, state.notation),
-                            fontSize = 17.sp,
+                            fontSize = 25.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = PrimaryBlue,
                             modifier = Modifier.padding(vertical = 8.dp)

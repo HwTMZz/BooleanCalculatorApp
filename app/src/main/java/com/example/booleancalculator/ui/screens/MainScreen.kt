@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.booleancalculator.domain.engine.BooleanEvaluator
@@ -59,19 +60,24 @@ fun MainScreen(
 
             val ast = state.ast
             if (ast != null) {
-                val vars = BooleanEvaluator.extractVars(ast)
-                val hasAssigned = vars.any { v -> state.assignments[v] == "0" || state.assignments[v] == "1" }
+                val vars = remember(ast) { BooleanEvaluator.extractVars(ast) }
+                val hasAssigned = remember(vars, state.assignments) {
+                    vars.any { v -> state.assignments[v] == "0" || state.assignments[v] == "1" }
+                }
                 if (hasAssigned) {
-                    val bindings = vars.associateWith { v ->
-                        val a = state.assignments[v]
-                        if (a == "0" || a == "1") a.toInt() else 0
+                    val (tupleStr, answerVal) = remember(ast, vars, state.assignments) {
+                        val bindings = vars.associateWith { v ->
+                            val a = state.assignments[v]
+                            if (a == "0" || a == "1") a.toInt() else 0
+                        }
+                        val detailed = BooleanEvaluator.evalBooleanDetailed(ast, bindings)
+                        val tStr = vars.map { v -> "$v:${bindings[v]}" }.joinToString(", ")
+                        Pair(tStr, detailed.value)
                     }
-                    val detailed = BooleanEvaluator.evalBooleanDetailed(ast, bindings)
-                    val tupleStr = vars.map { v -> "$v:${bindings[v]}" }.joinToString(", ")
 
                     AnswerDisplay(
                         tupleText = tupleStr,
-                        answerValue = detailed.value
+                        answerValue = answerVal
                     )
                 }
             }

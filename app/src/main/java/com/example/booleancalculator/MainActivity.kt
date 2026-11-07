@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booleancalculator.ui.screens.FullTruthTableScreen
 import com.example.booleancalculator.ui.screens.HowComeScreen
 import com.example.booleancalculator.ui.screens.KMapSolveScreen
@@ -35,9 +38,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BooleanCalculatorApp(
-    viewModel: CalculatorViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: CalculatorViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val isOverlayOpen = state.currentScreen == Screen.RESULT_OVERLAY
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.currentScreen) {
@@ -54,9 +58,10 @@ fun BooleanCalculatorApp(
                     onResetAssignments = { viewModel.resetAssignments() },
                     onOpenResultOverlay = { viewModel.openResultOverlay() },
                     onSelectCursor = { idx -> viewModel.setCursorIndex(idx) }
+//                    modifier = if (isOverlayOpen) Modifier.blur(16.dp) else Modifier
                 )
 
-                if (state.currentScreen == Screen.RESULT_OVERLAY) {
+                if (isOverlayOpen) {
                     ResultOverlay(
                         state = state,
                         onClose = { viewModel.closeOverlay() },

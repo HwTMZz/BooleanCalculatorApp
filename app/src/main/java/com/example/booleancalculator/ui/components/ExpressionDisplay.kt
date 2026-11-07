@@ -186,9 +186,10 @@ fun ExpressionDisplay(
                 }
             }
 
+            // Clear Button: Vertically centered on the right edge (Alignment.CenterEnd)
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .align(Alignment.CenterEnd)
                     .size(30.dp)
                     .clip(CircleShape)
                     .border(1.5.dp, BorderColor, CircleShape)
