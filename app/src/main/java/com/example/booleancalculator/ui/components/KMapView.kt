@@ -36,6 +36,24 @@ private fun calculateMinterm(rIdx: Int, cIdx: Int, rowCodes: List<String>, colCo
     } else 0
 }
 
+private val KMAP_GROUP_PALETTE = listOf(
+    Color(0xFF0088FF),
+    Color(0xFFD93025),
+    Color(0xFF188038),
+    Color(0xFFE37400),
+    Color(0xFFA142F4),
+    Color(0xFF00A0B0)
+)
+
+private fun getGroupColor(group: KMapGroup): Color {
+    val hexColor = parseGroupColor(group.colorHex)
+    if (hexColor != Color(0xFF0088FF) || group.colorHex.equals("#0088FF", ignoreCase = true)) {
+        return hexColor
+    }
+    val fallbackIdx = (group.id - 1).coerceAtLeast(0) % KMAP_GROUP_PALETTE.size
+    return KMAP_GROUP_PALETTE[fallbackIdx]
+}
+
 private fun parseGroupColor(hex: String): Color {
     return when (hex.uppercase()) {
         "#0088FF" -> Color(0xFF0088FF)
@@ -157,7 +175,7 @@ fun KMapView(
                     val isHighlightedTarget = isCellFilled && isTargetCell && step >= 4
 
                     val groupForCell = if (step >= 6) groups.firstOrNull { g -> g.cells.contains(Pair(rIdx, cIdx)) } else null
-                    val groupColor = groupForCell?.let { parseGroupColor(it.colorHex) }
+                    val groupColor = groupForCell?.let { getGroupColor(it) }
 
                     val bg = when {
                         groupColor != null -> groupColor.copy(alpha = 0.20f)

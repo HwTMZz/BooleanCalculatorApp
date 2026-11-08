@@ -36,6 +36,10 @@ import com.example.booleancalculator.ui.theme.PrimaryText
 import com.example.booleancalculator.ui.theme.SecondaryText
 import com.example.booleancalculator.viewmodel.UiState
 
+/*
+ส่วนแสดง Solving Step เมื่อผู้ใช้กรอกค่าของแต่ละตัวแปรลงไป
+*/
+
 @Composable
 fun SimplifySolveScreen(
     state: UiState,
@@ -59,10 +63,28 @@ fun SimplifySolveScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp, 16.dp, 16.dp, 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(CardBackground)
+                .border(1.dp, BorderColor, CircleShape)
+                .clickable { onBack() },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "✕",
+                fontSize = 16.sp,
+                color = PrimaryText,
+                fontWeight = FontWeight.Bold
+            )
+        }
+            Column (
+                modifier = Modifier.padding(start = 12.dp)
+            ) {
                 Text(
                     text = "Simplify Expressions",
                     fontSize = 22.sp,
@@ -70,32 +92,15 @@ fun SimplifySolveScreen(
                     color = PrimaryText
                 )
             }
-
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(CardBackground)
-                    .border(1.dp, BorderColor, CircleShape)
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "✕",
-                    fontSize = 16.sp,
-                    color = PrimaryText,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
 
-        // Subtitle matching reference web
-        Text(
-            text = "Boolean Identities",
-            fontSize = 16.sp,
-            color = PrimaryText,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        )
+//        // Subtitle matching reference web
+//        Text(
+//            text = "Boolean Identities",
+//            fontSize = 16.sp,
+//            color = PrimaryText,
+//            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+//        )
 
         // Steps List Container (.identity-steps style)
         Box(
@@ -103,9 +108,9 @@ fun SimplifySolveScreen(
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .background(CardBackground)
-                .padding(12.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 6.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -134,44 +139,55 @@ fun SimplifySolveScreen(
                             // Line 1 spans full width
                             Text(
                                 text = step.expression,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = PrimaryText
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = PrimaryBlue
                             )
                         } else {
                             // 3-column layout matching reference web (.identity-step grid)
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Column 1: Expression
+                            Column(
+                                modifier = Modifier
+//                                    .background(Color(0xFFF2F2F7))
+                                .fillMaxWidth(),
+                                horizontalAlignment = Alignment.Start
+
+                            ) {// Column 1: Expression
                                 Text(
                                     text = step.expression,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Normal,
                                     color = PrimaryText,
-                                    modifier = Modifier.weight(1.15f)
+//                                    modifier = Modifier.weight(1.15f)
                                 )
-
-                                // Column 2: Law Name
+//                                Text(text = "Hee")
                                 Text(
-                                    text = step.law,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = SecondaryText,
-                                    modifier = Modifier.weight(0.8f)
-                                )
+                                        text = step.law,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = SecondaryText,
+//                                        modifier = Modifier.weight(0.8f)
+                                    )
 
-                                // Column 3: Rule Formula (Primary Blue)
-                                Text(
-                                    text = step.identity,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    color = PrimaryBlue,
-                                    modifier = Modifier.weight(1.25f)
-                                )
+                                    // Column 3: Rule Formula (Primary Blue)
+                                    Text(
+                                        text = step.identity,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = PrimaryBlue,
+//                                        modifier = Modifier.weight(1.25f)
+                                    )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+
+                                    // Column 2: Law Name
+
+                                }
                             }
+
                         }
                     }
                 }
@@ -182,7 +198,7 @@ fun SimplifySolveScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp, 10.dp, 20.dp, 24.dp)
+                .padding(20.dp, 0.dp, 20.dp, 24.dp)
         ) {
             Text(
                 text = "Line $currentStep of ${steps.size}",

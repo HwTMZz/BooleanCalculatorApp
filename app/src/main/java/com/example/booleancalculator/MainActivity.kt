@@ -2,16 +2,17 @@ package com.example.booleancalculator
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.draw.blur
+//import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booleancalculator.ui.screens.FullTruthTableScreen
 import com.example.booleancalculator.ui.screens.HowComeScreen
@@ -24,10 +25,17 @@ import com.example.booleancalculator.ui.theme.BooleanCalculatorTheme
 import com.example.booleancalculator.viewmodel.CalculatorViewModel
 import com.example.booleancalculator.viewmodel.Screen
 
+import androidx.core.view.WindowCompat
+
+//import com.example.booleancalculator.ui.components.TopStatusSpacer
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
+        WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        ).isAppearanceLightStatusBars = true
         setContent {
             BooleanCalculatorTheme {
                 BooleanCalculatorApp()
@@ -40,8 +48,20 @@ class MainActivity : ComponentActivity() {
 fun BooleanCalculatorApp(
     viewModel: CalculatorViewModel = viewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isOverlayOpen = state.currentScreen == Screen.RESULT_OVERLAY
+
+    BackHandler(enabled = state.currentScreen != Screen.MAIN) {
+        when (state.currentScreen) {
+            Screen.RESULT_OVERLAY -> viewModel.closeOverlay()
+            Screen.HOW_COME,
+            Screen.FULL_TRUTH_TABLE,
+            Screen.TRACE_SOLVE,
+            Screen.SIMPLIFY_SOLVE,
+            Screen.KMAP_SOLVE -> viewModel.openResultOverlay()
+            else -> {}
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.currentScreen) {

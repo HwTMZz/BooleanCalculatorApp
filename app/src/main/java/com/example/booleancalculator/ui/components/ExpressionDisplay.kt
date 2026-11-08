@@ -100,7 +100,7 @@ fun ExpressionDisplay(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Type an Expressions...",
+                            text = "Type an Expressions",
                             fontSize = 26.sp,
                             color = PlaceholderText,
                             fontWeight = FontWeight.Normal

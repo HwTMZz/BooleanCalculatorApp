@@ -79,9 +79,10 @@ fun KMapSolveScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "←",
-                        fontSize = 24.sp,
-                        color = PrimaryText
+                        text = "✕",
+                        fontSize = 16.sp,
+                        color = PrimaryText,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -132,9 +133,9 @@ fun KMapSolveScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(CardBackground)
-                    .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+//                    .clip(RoundedCornerShape(16.dp))
+//                    .background(CardBackground)
+//                    .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Column {
@@ -150,14 +151,21 @@ fun KMapSolveScreen(
                     }
 
                     val desc = when (step) {
-                        0 -> "A Karnaugh map (K-map) is a visual grid designed to simplify Boolean expressions. Based on ${kmap.rowVars.size + kmap.colVars.size} variables, a 2^${kmap.rowVars.size + kmap.colVars.size} grid is constructed."
-                        1 -> "Row variables ('${kmap.rowVars.joinToString("")}') and column variables ('${kmap.colVars.joinToString("")}') divide the inputs across grid axes, separated by the diagonal slash in top-left."
-                        2 -> "Headers use Gray-code sequence (00, 01, 11, 10) so adjacent cells differ by exactly 1 bit, enabling neighboring terms to combine!"
-                        3 -> "Each cell is filled with its truth table output result. Small green numbers at top-right show each cell's minterm index number."
-                        4 -> "Highlighting all cells containing $targetVal for $mode simplification."
-                        5 -> "Form rectangular groups of $targetVal cells:\n• Group sizes must be powers of 2 (1, 2, 4, 8, 16)\n• Opposite edges wrap around to touch\n• Make groups as LARGE as possible"
-                        6 -> "Formed ${groups.size} group(s). For each group, variables that remain constant are retained while variables that change are eliminated!"
-                        else -> "Combining all group terms yields the final simplified $mode expression!"
+                        0 -> "A Karnaugh map (K-map) helps simplify Boolean expressions by arranging the outputs in a grid with ${kmap.rowVars.size + kmap.colVars.size} variables."
+
+                        1 -> "The row variables ('${kmap.rowVars.joinToString("")}') and column variables ('${kmap.colVars.joinToString("")}') are placed along the two axes. The diagonal line in the top-left corner separates them."
+
+                        2 -> "The headers follow Gray-code order (00, 01, 11, 10), so each pair of neighboring cells differs by only one bit. This makes it easier to combine terms."
+
+                        3 -> "Each cell shows the corresponding output from the truth table. The small green number in the top-right corner shows its minterm index."
+
+                        4 -> "The highlighted cells show all the outputs equal to $targetVal, which are used for $mode simplification."
+
+                        5 -> "Now, group the cells containing $targetVal:\n• Each group must have a power-of-two number of cells (1, 2, 4, 8, or 16)\n• Cells on opposite edges can be grouped together\n• Try to make each group as large as possible"
+
+                        6 -> "${groups.size} group(s) have been formed. Variables that stay the same within a group are kept, while variables that change are removed."
+
+                        else -> "Combine the terms from all groups to get the final simplified $mode expression"
                     }
 
                     Text(

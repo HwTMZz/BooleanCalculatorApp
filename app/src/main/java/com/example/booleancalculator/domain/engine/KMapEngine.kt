@@ -7,7 +7,7 @@ import kotlin.math.ceil
 
 object KMapEngine {
 
-    val GROUP_COLORS = listOf(
+    private val GROUP_COLOR_HEXES = listOf(
         "#0088FF", // Blue
         "#D93025", // Red
         "#188038", // Green
@@ -185,7 +185,7 @@ object KMapEngine {
                 id = idx + 1,
                 minterms = minterms,
                 cells = cells,
-                colorHex = GROUP_COLORS[idx % GROUP_COLORS.size],
+                colorHex = GROUP_COLOR_HEXES[idx % GROUP_COLOR_HEXES.size],
                 termExpression = termExpr
             )
         }

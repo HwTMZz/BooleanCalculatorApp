@@ -1,8 +1,5 @@
 package com.example.booleancalculator.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,26 +29,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.booleancalculator.domain.engine.BooleanEvaluator
-import com.example.booleancalculator.domain.model.ASTNode
-import com.example.booleancalculator.domain.model.Notation
-import com.example.booleancalculator.domain.model.TruthTableRow
+import com.example.booleancalculator.ui.components.AnimatedExpressionTree
 import com.example.booleancalculator.ui.theme.BorderColor
 import com.example.booleancalculator.ui.theme.CardBackground
-import com.example.booleancalculator.ui.theme.ErrorRed
 import com.example.booleancalculator.ui.theme.MainBackground
-import com.example.booleancalculator.ui.theme.OperationActiveBg
-import com.example.booleancalculator.ui.theme.OperationResultBg
 import com.example.booleancalculator.ui.theme.PrimaryBlue
 import com.example.booleancalculator.ui.theme.PrimaryText
 import com.example.booleancalculator.ui.theme.SecondaryText
-import com.example.booleancalculator.ui.theme.SuccessGreen
 import com.example.booleancalculator.ui.theme.TableHighlight
 import com.example.booleancalculator.viewmodel.UiState
 import kotlinx.coroutines.delay
@@ -92,9 +82,10 @@ fun HowComeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "←",
-                    fontSize = 24.sp,
-                    color = PrimaryText
+                    text = "✕",
+                    fontSize = 16.sp,
+                    color = PrimaryText,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -129,9 +120,9 @@ fun HowComeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(CardBackground)
-                        .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
-                        .padding(16.dp)
+//                        .background(CardBackground)
+//                        .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+//                        .padding(16.dp)
                 ) {
                     Column {
 //                        Text(
@@ -145,7 +136,7 @@ fun HowComeScreen(
                             fontSize = 25.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = PrimaryBlue,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            modifier = Modifier.padding(vertical = 3.dp)
                         )
                         Text(
                             text = "This expression contains ${model.vars.size} variable(s) (${model.vars.joinToString(", ")}). Therefore, it has 2^${model.vars.size} = ${model.rows.size} possible Boolean combinations.",
@@ -153,25 +144,25 @@ fun HowComeScreen(
                             color = SecondaryText,
                             lineHeight = 20.sp
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "Operation Order:",
-                            fontSize = 15.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = PrimaryText
                         )
-                        Text(
-                            text = BooleanEvaluator.getEvaluationOrderExplanation(model.ast, state.notation),
-                            fontSize = 13.sp,
-                            color = SecondaryText,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
+//                        Text(
+//                            text = BooleanEvaluator.getEvaluationOrderExplanation(model.ast, state.notation),
+//                            fontSize = 13.sp,
+//                            color = SecondaryText,
+//                            modifier = Modifier.padding(vertical = 4.dp)
+//                        )
                         progress.operationOrder.forEachIndexed { idx, node ->
                             Text(
                                 text = "${idx + 1}. ${BooleanEvaluator.nodeLabel(node, state.notation)}",
                                 fontSize = 14.sp,
                                 color = SecondaryText,
-                                modifier = Modifier.padding(top = 2.dp)
+                                modifier = Modifier.padding(top = 1.dp)
                             )
                         }
                     }
@@ -228,7 +219,7 @@ fun HowComeScreen(
                                 .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            HowComeExpressionNode(
+                            AnimatedExpressionTree(
                                 node = model.ast,
                                 row = activeRow,
                                 completedNodes = completedNodes,
@@ -355,7 +346,7 @@ fun HowComeScreen(
                 .padding(16.dp)
         ) {
             val noteText = when {
-                currentCursor == 0 -> "Introduction · $totalSteps operations across ${model.rows.size} rows"
+                currentCursor == 0 -> "$totalSteps operations across ${model.rows.size} rows"
                 currentCursor >= totalSteps -> "All $totalSteps operations completed"
                 else -> "Step $currentCursor of $totalSteps completed"
             }
@@ -419,178 +410,4 @@ fun HowComeScreen(
     }
 }
 
-@Composable
-private fun HowComeExpressionNode(
-    node: ASTNode,
-    row: TruthTableRow,
-    completedNodes: Set<String>,
-    activeNodeId: String?,
-    animationPhase: Int,
-    notation: Notation,
-    parentPrec: Int = 0
-) {
-    if (completedNodes.contains(node.id)) {
-        val evaluatedVal = row.values[node.id] ?: 0
-        Text(
-            text = evaluatedVal.toString(),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = PrimaryText
-        )
-        return
-    }
 
-    if (node.id == activeNodeId) {
-        val targetBg = when (animationPhase) {
-            2 -> OperationActiveBg
-            3 -> OperationResultBg
-            else -> Color.Transparent
-        }
-        val targetTextCol = when (animationPhase) {
-            2 -> ErrorRed
-            3 -> SuccessGreen
-            else -> PrimaryText
-        }
-
-        val animatedBg by animateColorAsState(targetValue = targetBg, animationSpec = tween(durationMillis = 350), label = "bg")
-        val animatedTextCol by animateColorAsState(targetValue = targetTextCol, animationSpec = tween(durationMillis = 350), label = "textCol")
-
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .background(animatedBg)
-                .animateContentSize(animationSpec = tween(durationMillis = 350))
-                .padding(horizontal = 6.dp, vertical = 2.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            if (animationPhase == 3) {
-                val evaluatedVal = row.values[node.id] ?: 0
-                Text(
-                    text = evaluatedVal.toString(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = animatedTextCol
-                )
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RenderNodeContents(
-                        node = node,
-                        row = row,
-                        completedNodes = completedNodes,
-                        activeNodeId = activeNodeId,
-                        animationPhase = animationPhase,
-                        notation = notation,
-                        parentPrec = parentPrec,
-                        overrideTextColor = if (animationPhase == 2) animatedTextCol else null
-                    )
-                }
-            }
-        }
-        return
-    }
-
-    RenderNodeContents(
-        node = node,
-        row = row,
-        completedNodes = completedNodes,
-        activeNodeId = activeNodeId,
-        animationPhase = animationPhase,
-        notation = notation,
-        parentPrec = parentPrec,
-        overrideTextColor = null
-    )
-}
-
-@Composable
-private fun RenderNodeContents(
-    node: ASTNode,
-    row: TruthTableRow,
-    completedNodes: Set<String>,
-    activeNodeId: String?,
-    animationPhase: Int,
-    notation: Notation,
-    parentPrec: Int,
-    overrideTextColor: Color?
-) {
-    val defaultTextCol = overrideTextColor ?: PrimaryText
-
-    when (node) {
-        is ASTNode.VarNode -> {
-            val v = row.bindings[node.name] ?: 0
-            Text(
-                text = v.toString(),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = defaultTextCol
-            )
-        }
-        is ASTNode.NumNode -> {
-            Text(
-                text = node.value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = defaultTextCol
-            )
-        }
-        is ASTNode.NotNode -> {
-            val opSymbol = if (notation == Notation.SYMBOL) "!" else "NOT "
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = opSymbol,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = defaultTextCol
-                )
-                HowComeExpressionNode(
-                    node = node.child,
-                    row = row,
-                    completedNodes = completedNodes,
-                    activeNodeId = activeNodeId,
-                    animationPhase = animationPhase,
-                    notation = notation,
-                    parentPrec = 4
-                )
-            }
-        }
-        is ASTNode.BinaryOpNode -> {
-            val precMap = mapOf("OR" to 1, "NOR" to 1, "XOR" to 2, "XNOR" to 2, "AND" to 3, "NAND" to 3)
-            val currentPrec = precMap[node.type.keyword] ?: 3
-            val needsWrap = currentPrec < parentPrec
-
-            val opSymbol = BooleanEvaluator.opDisplay(node.type, notation)
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (needsWrap) {
-                    Text(text = "(", fontSize = 20.sp, color = defaultTextCol)
-                }
-                HowComeExpressionNode(
-                    node = node.left,
-                    row = row,
-                    completedNodes = completedNodes,
-                    activeNodeId = activeNodeId,
-                    animationPhase = animationPhase,
-                    notation = notation,
-                    parentPrec = currentPrec
-                )
-                Text(
-                    text = " $opSymbol ",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = defaultTextCol
-                )
-                HowComeExpressionNode(
-                    node = node.right,
-                    row = row,
-                    completedNodes = completedNodes,
-                    activeNodeId = activeNodeId,
-                    animationPhase = animationPhase,
-                    notation = notation,
-                    parentPrec = currentPrec
-                )
-                if (needsWrap) {
-                    Text(text = ")", fontSize = 20.sp, color = defaultTextCol)
-                }
-            }
-        }
-    }
-}
