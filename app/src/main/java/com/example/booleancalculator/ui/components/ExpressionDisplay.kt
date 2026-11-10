@@ -100,7 +100,7 @@ fun ExpressionDisplay(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Type an Expressions...",
+                            text = "Type an Expressions",
                             fontSize = 26.sp,
                             color = PlaceholderText,
                             fontWeight = FontWeight.Normal
@@ -186,9 +186,10 @@ fun ExpressionDisplay(
                 }
             }
 
+            // Clear Button: Vertically centered on the right edge (Alignment.CenterEnd)
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .align(Alignment.CenterEnd)
                     .size(30.dp)
                     .clip(CircleShape)
                     .border(1.5.dp, BorderColor, CircleShape)

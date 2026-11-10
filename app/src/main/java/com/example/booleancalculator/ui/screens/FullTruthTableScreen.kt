@@ -91,12 +91,12 @@ fun FullTruthTableScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "←",
-                    fontSize = 24.sp,
-                    color = PrimaryText
+                    text = "✕",
+                    fontSize = 16.sp,
+                    color = PrimaryText,
+                    fontWeight = FontWeight.Bold
                 )
             }
-
             Column(
                 modifier = Modifier.padding(start = 12.dp)
             ) {

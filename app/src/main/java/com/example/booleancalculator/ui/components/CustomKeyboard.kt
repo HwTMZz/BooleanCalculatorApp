@@ -8,10 +8,11 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+//import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+//import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,7 +48,11 @@ fun CustomKeyboard(
     ) {
         if (!isAdvanced) {
             // Variable Row (4 columns)
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(width = 0.dp, height = 90.dp)
+            ) {
                 varSet.vars.forEach { v ->
                     KeyButton(
                         text = v,
@@ -59,7 +64,11 @@ fun CustomKeyboard(
             }
         } else {
             // Advanced Operator Row
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(width = 0.dp, height = 90.dp)
+            ) {
                 listOf("NAND", "NOR", "XOR", "XNOR").forEach { op ->
                     KeyButton(
                         text = op,

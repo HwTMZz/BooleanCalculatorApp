@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.booleancalculator.ui.theme.StatusArea
 
@@ -18,8 +19,8 @@ fun TopStatusSpacer(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .height(12.dp)
+            .height(10.dp)
             .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .background(StatusArea)
+            .background(Color(0x00000000))
     )
 }

@@ -50,6 +50,7 @@ fun KMapSolveScreen(
     val kmap = state.kMapModel ?: return
     val step = state.kMapSolveStep
     val mode = state.kMapMode
+    val targetVal = if (mode == KMapMode.SOP) 1 else 0
     val groups = if (mode == KMapMode.SOP) kmap.sopGroups else kmap.posGroups
     val resultExpr = if (mode == KMapMode.SOP) kmap.sopExpression else kmap.posExpression
 
@@ -78,9 +79,10 @@ fun KMapSolveScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "←",
-                        fontSize = 24.sp,
-                        color = PrimaryText
+                        text = "✕",
+                        fontSize = 16.sp,
+                        color = PrimaryText,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -127,36 +129,43 @@ fun KMapSolveScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Explanation Card
+            // Explanation Card with clear, simple, natural descriptions
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(CardBackground)
-                    .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+//                    .clip(RoundedCornerShape(16.dp))
+//                    .background(CardBackground)
+//                    .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Column {
                     val title = when (step) {
-                        0 -> "Step 1: K-Map Grid Layout"
+                        0 -> "Step 1: K-Map Grid Structure"
                         1 -> "Step 2: Variable Allocation"
                         2 -> "Step 3: Gray-Code Ordering"
                         3 -> "Step 4: Cell Population"
-                        4 -> "Step 5: Identify Target Cells ($mode)"
+                        4 -> "Step 5: Target Cells ($mode)"
                         5 -> "Step 6: Group Formation Rules"
                         6 -> "Step 7: Grouping Overlays"
                         else -> "Step 8: Final Simplified Expression"
                     }
 
                     val desc = when (step) {
-                        0 -> "Displaying blank grid structure based on total variables."
-                        1 -> "Rows represent '${kmap.rowVars.joinToString("")}', columns represent '${kmap.colVars.joinToString("")}'."
-                        2 -> "Headers use Gray code (00, 01, 11, 10) so adjacent cells differ by exactly 1 bit."
-                        3 -> "Filling grid values cell-by-cell from the truth table outputs."
-                        4 -> "Highlighting cells for $mode simplification."
-                        5 -> "Finding optimal rectangular groups of sizes 1, 2, 4, 8, 16 with edge wrap-around."
-                        6 -> "Formed ${groups.size} group(s) covering all required cells."
-                        else -> "Resulting $mode expression: $resultExpr"
+                        0 -> "A Karnaugh map (K-map) helps simplify Boolean expressions by arranging the outputs in a grid with ${kmap.rowVars.size + kmap.colVars.size} variables."
+
+                        1 -> "The row variables ('${kmap.rowVars.joinToString("")}') and column variables ('${kmap.colVars.joinToString("")}') are placed along the two axes. The diagonal line in the top-left corner separates them."
+
+                        2 -> "The headers follow Gray-code order (00, 01, 11, 10), so each pair of neighboring cells differs by only one bit. This makes it easier to combine terms."
+
+                        3 -> "Each cell shows the corresponding output from the truth table. The small green number in the top-right corner shows its minterm index."
+
+                        4 -> "The highlighted cells show all the outputs equal to $targetVal, which are used for $mode simplification."
+
+                        5 -> "Now, group the cells containing $targetVal:\n• Each group must have a power-of-two number of cells (1, 2, 4, 8, or 16)\n• Cells on opposite edges can be grouped together\n• Try to make each group as large as possible"
+
+                        6 -> "${groups.size} group(s) have been formed. Variables that stay the same within a group are kept, while variables that change are removed."
+
+                        else -> "Combine the terms from all groups to get the final simplified $mode expression"
                     }
 
                     Text(
@@ -175,12 +184,17 @@ fun KMapSolveScreen(
                 }
             }
 
-            // K-Map Grid Display (Using standard KMapView)
+            // K-Map Grid Display (Using step-aware KMapView)
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                KMapView(kmap = kmap)
+                KMapView(
+                    kmap = kmap,
+                    step = step,
+                    targetVal = targetVal,
+                    groups = groups
+                )
             }
 
             // Group Terms List (step >= 6)
@@ -211,7 +225,7 @@ fun KMapSolveScreen(
                 }
             }
 
-            // Result Expression (step >= 7)
+            // Final Result Expression (step >= 7)
             if (step >= 7) {
                 Box(
                     modifier = Modifier
@@ -233,7 +247,7 @@ fun KMapSolveScreen(
             }
         }
 
-        // Footer Step Controls
+        // Footer Step Controls (Leaves only ← Previous when step >= 7, hides Next/Done)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,48 +260,52 @@ fun KMapSolveScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 10.dp)
+                    .padding(bottom = if (step < 7) 10.dp else 0.dp)
             )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(CardBackground)
-                        .border(1.5.dp, BorderColor, RoundedCornerShape(22.dp))
-                        .clickable(enabled = step > 0) { onPrevStep() }
-                        .padding(vertical = 13.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "← Previous",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (step > 0) SecondaryText else SecondaryText.copy(alpha = 0.4f)
-                    )
+                if (step > 0) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(CardBackground)
+                            .border(1.5.dp, BorderColor, RoundedCornerShape(22.dp))
+                            .clickable { onPrevStep() }
+                            .padding(vertical = 13.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "← Previous",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SecondaryText
+                        )
+                    }
                 }
 
                 val canNext = step < 7
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(if (canNext) PrimaryBlue else CardBackground)
-                        .border(1.5.dp, if (canNext) PrimaryBlue else BorderColor, RoundedCornerShape(22.dp))
-                        .clickable { if (canNext) onNextStep() else onBack() }
-                        .padding(vertical = 13.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (canNext) "Next Step →" else "Done",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (canNext) CardBackground else SecondaryText
-                    )
+                if (canNext) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(PrimaryBlue)
+                            .border(1.5.dp, PrimaryBlue, RoundedCornerShape(22.dp))
+                            .clickable { onNextStep() }
+                            .padding(vertical = 13.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Next Step →",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CardBackground
+                        )
+                    }
                 }
             }
         }

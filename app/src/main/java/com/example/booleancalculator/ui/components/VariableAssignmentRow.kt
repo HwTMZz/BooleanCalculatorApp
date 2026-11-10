@@ -37,6 +37,7 @@ fun VariableAssignmentRow(
 ) {
     Row(
         modifier = modifier
+            .border(1.dp, BorderColor)
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
