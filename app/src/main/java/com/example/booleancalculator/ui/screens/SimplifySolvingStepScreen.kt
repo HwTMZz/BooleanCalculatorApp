@@ -66,6 +66,7 @@ fun SimplifySolveScreen(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Box(
             modifier = Modifier
                 .size(42.dp)
@@ -88,6 +89,12 @@ fun SimplifySolveScreen(
                 Text(
                     text = "Simplify Expressions",
                     fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PrimaryText
+                )
+                Text(
+                    text = "Using Quine-McCluskey Algorithm",
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = PrimaryText
                 )

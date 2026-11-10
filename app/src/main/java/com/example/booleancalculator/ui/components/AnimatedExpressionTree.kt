@@ -63,8 +63,8 @@ fun AnimatedExpressionTree(
             else -> PrimaryText
         }
 
-        val animatedBg by animateColorAsState(targetValue = targetBg, animationSpec = tween(durationMillis = 350), label = "bg")
-        val animatedTextCol by animateColorAsState(targetValue = targetTextCol, animationSpec = tween(durationMillis = 350), label = "textCol")
+        val animatedBg by animateColorAsState(targetValue = targetBg, animationSpec = tween(durationMillis = 300), label = "bg")
+        val animatedTextCol by animateColorAsState(targetValue = targetTextCol, animationSpec = tween(durationMillis = 300), label = "textCol")
 
         Box(
             modifier = Modifier

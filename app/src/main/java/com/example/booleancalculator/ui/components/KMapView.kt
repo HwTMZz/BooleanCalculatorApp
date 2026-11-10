@@ -24,6 +24,7 @@ import com.example.booleancalculator.ui.theme.CardBackground
 import com.example.booleancalculator.ui.theme.PrimaryText
 import com.example.booleancalculator.ui.theme.SuccessGreen
 import com.example.booleancalculator.ui.theme.TableHighlight
+import androidx.compose.ui.draw.clip
 
 private fun calculateMinterm(rIdx: Int, cIdx: Int, rowCodes: List<String>, colCodes: List<String>): Int {
     val fullBinary = rowCodes[rIdx] + colCodes[cIdx]
@@ -81,15 +82,16 @@ fun KMapView(
 
     Column(
         modifier = modifier
-            .border(1.5.dp, Color.Black, RoundedCornerShape(4.dp))
+            .border(1.5.dp, Color.Black, RoundedCornerShape(16.dp))
             .background(CardBackground)
+            .clip(RoundedCornerShape(16.dp))
     ) {
         // Header Row (Column Headers)
         Row {
             // Corner cell with diagonal slash dividing row variables and column variables
             Box(
                 modifier = Modifier
-                    .size(width = 56.dp, height = 48.dp)
+                    .size(width = 48.dp, height = 48.dp)
                     .border(0.5.dp, Color.Black)
                     .drawBehind {
                         drawLine(
@@ -150,7 +152,7 @@ fun KMapView(
                 // Row header cell
                 Box(
                     modifier = Modifier
-                        .size(width = 56.dp, height = 48.dp)
+                        .size(width = 48.dp, height = 48.dp)
                         .border(0.5.dp, Color.Black)
                         .background(TableHighlight),
                     contentAlignment = Alignment.Center

@@ -32,15 +32,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.booleancalculator.domain.engine.BooleanEvaluator
 import com.example.booleancalculator.ui.components.KMapView
 import com.example.booleancalculator.ui.theme.BorderColor
 import com.example.booleancalculator.ui.theme.CardBackground
-import com.example.booleancalculator.ui.theme.MainBackground
+//import com.example.booleancalculator.ui.theme.MainBackground
 import com.example.booleancalculator.ui.theme.PrimaryBlue
 import com.example.booleancalculator.ui.theme.PrimaryText
 import com.example.booleancalculator.ui.theme.SecondaryText
@@ -101,11 +102,11 @@ fun ResultOverlay(
             visibleState = transitionState,
             enter = slideInVertically(
                 initialOffsetY = { fullHeight -> fullHeight },
-                animationSpec = tween(durationMillis = 300)
+                animationSpec = tween(durationMillis = 500)
             ),
             exit = slideOutVertically(
                 targetOffsetY = { fullHeight -> fullHeight },
-                animationSpec = tween(durationMillis = 300)
+                animationSpec = tween(durationMillis = 500)
             ),
             modifier = Modifier.fillMaxSize()
         ) {
@@ -201,30 +202,31 @@ fun ResultOverlay(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
-                                .clip(RoundedCornerShape(8.dp))
+                                .border(2.dp, BorderColor, RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(20.dp))
                         ) {
                             // Table Header
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(TableHighlight)
+                                    .border(0.5.dp, BorderColor)
                             ) {
                                 vars.forEach { v ->
                                     Text(
                                         text = v,
-                                        modifier = Modifier.weight(1f).padding(8.dp),
+                                        modifier = Modifier.weight(1f).padding(16.dp),
                                         textAlign = TextAlign.Center,
-                                        fontSize = 14.spUnit,
+                                        fontSize = 18.spUnit,
                                         fontWeight = FontWeight.Bold,
                                         color = SecondaryText
                                     )
                                 }
                                 Text(
                                     text = "F",
-                                    modifier = Modifier.weight(1f).padding(8.dp),
+                                    modifier = Modifier.weight(1f).padding(16.dp),
                                     textAlign = TextAlign.Center,
-                                    fontSize = 14.spUnit,
+                                    fontSize = 18.spUnit,
                                     fontWeight = FontWeight.Bold,
                                     color = PrimaryText
                                 )
@@ -282,8 +284,14 @@ fun ResultOverlay(
                             color = PrimaryText
                         )
                         Text(
+                            text = "Using Quine-McCluskey Algorithm",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PrimaryText
+                        )
+                        Text(
                             text = "$canonicalExpr\n↓\n$simplifiedExpr",
-                            fontSize = 16.spUnit,
+                            fontSize = 20.spUnit,
                             fontWeight = FontWeight.Bold,
                             color = PrimaryText,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -353,7 +361,7 @@ private fun CardPrimaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(60.dp))
             .background(PrimaryBlue)
             .clickable { onClick() }
             .padding(vertical = 12.dp),
@@ -376,9 +384,9 @@ private fun CardSecondaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(CardBackground)
-            .border(1.5.dp, BorderColor, RoundedCornerShape(20.dp))
+            .border(1.5.dp, BorderColor, RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
